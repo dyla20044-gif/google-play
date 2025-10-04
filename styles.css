@@ -8,23 +8,24 @@
     --color-dark-gray: #5f6368;
     --color-white: #ffffff;
     --font-family: 'Roboto', Arial, sans-serif;
+    --border-color: #dadce0;
 }
 
 body {
     font-family: var(--font-family);
     margin: 0;
-    padding-top: 60px; /* Espacio para la barra de navegación fija */
+    padding-top: 60px; 
     background-color: var(--color-white);
     color: var(--color-text);
 }
 
 .app-page-container {
-    max-width: 1000px; /* Ancho máximo similar al de Play Store en escritorio */
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* --- BARRA DE NAVEGACIÓN SUPERIOR (FIJA) --- */
+/* --- BARRA DE NAVEGACIÓN SUPERIOR --- */
 .play-store-nav {
     display: flex;
     justify-content: space-between;
@@ -32,7 +33,7 @@ body {
     padding: 0 20px;
     height: 60px;
     background-color: var(--color-white);
-    border-bottom: 1px solid #dadce0;
+    border-bottom: 1px solid var(--border-color);
     position: fixed;
     top: 0;
     left: 0;
@@ -43,28 +44,13 @@ body {
 .nav-content {
     display: flex;
     align-items: center;
+    flex-grow: 1;
 }
 
 .logo {
     font-size: 22px;
     font-weight: 500;
     color: var(--color-text);
-    margin-right: 30px;
-}
-
-.play-store-nav nav a {
-    text-decoration: none;
-    color: var(--color-dark-gray);
-    padding: 0 15px;
-    height: 60px;
-    line-height: 60px;
-    display: inline-block;
-}
-
-.play-store-nav nav .active {
-    color: var(--color-primary);
-    border-bottom: 3px solid var(--color-primary);
-    font-weight: 500;
 }
 
 .nav-icons {
@@ -165,21 +151,12 @@ body {
     transition: background-color 0.2s;
 }
 
-.download-button:hover {
-    background-color: #0b7f43;
-}
-
 .share-icon, .bookmark-icon {
     font-size: 20px;
     color: var(--color-dark-gray);
     cursor: pointer;
     padding: 10px;
     border-radius: 50%;
-    transition: background-color 0.2s;
-}
-
-.share-icon:hover, .bookmark-icon:hover {
-    background-color: var(--color-light-gray);
 }
 
 .compatibility-message {
@@ -188,20 +165,136 @@ body {
     margin-bottom: 30px;
 }
 
-/* --- CAPTURAS DE PANTALLA --- */
+/* --- CAPTURAS DE PANTALLA (SCROLL HORIZONTAL) --- */
 .screenshots {
     display: flex;
     gap: 10px;
-    overflow-x: auto; /* Permite desplazamiento horizontal en caso de muchas imágenes */
+    overflow-x: auto; 
     padding-bottom: 10px;
     white-space: nowrap; 
+    /* Eliminar barra de scroll en algunos navegadores */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.screenshots::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 .screenshots img {
     height: 300px; 
     border-radius: 12px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    flex-shrink: 0; /* Asegura que no se achiquen */
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------- */
+/* --- NUEVAS SECCIONES DE INFORMACIÓN ABAJO --- */
+/* ------------------------------------------- */
+.app-info-section {
+    margin-top: 40px;
+    padding: 0 0 40px 0;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.info-block {
+    margin: 20px 0;
+    line-height: 1.6;
+}
+
+.info-block p {
+    margin: 8px 0;
+    color: var(--color-dark-gray);
+}
+
+.info-block ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.info-block ul li {
+    margin-bottom: 5px;
+    color: var(--color-dark-gray);
+    font-size: 14px;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 30px 0;
+}
+
+/* --- SEGURIDAD DE LOS DATOS --- */
+.data-safety-block {
+    cursor: pointer;
+}
+
+.data-safety-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.safety-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text) !important;
+}
+
+.details-button {
+    text-decoration: none;
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.safety-summary {
+    margin-top: 15px;
+}
+
+.safety-summary p {
+    font-size: 14px;
+    margin-bottom: 5px !important;
+}
+
+.safety-note {
+    color: var(--color-dark-gray);
+    font-style: italic;
+    font-size: 12px !important;
+}
+
+/* --- TABLA DE INFORMACIÓN ADICIONAL --- */
+.info-table {
+    display: grid;
+    grid-template-columns: 1fr; /* Columna única en móvil */
+    gap: 15px 0;
+    margin-top: 20px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.info-label {
+    color: var(--color-dark-gray);
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--color-text);
 }
 
 /* ------------------------------------------- */
@@ -209,44 +302,20 @@ body {
 /* ------------------------------------------- */
 @media (max-width: 768px) {
     
-    /* Ocultar elementos en móvil para simplificar la interfaz */
-    .hide-on-mobile {
-        display: none !important;
-    }
-    
-    /* Barra de navegación: Ocultar o reducir algunos elementos */
-    .logo {
-        margin-right: 15px;
-    }
-
-    .play-store-nav nav {
-        margin-right: auto;
-    }
-
-    .play-store-nav nav a {
-        padding: 0 10px;
-    }
-
-    /* Contenedor principal sin límites */
     .app-page-container {
         padding: 15px;
     }
 
-    /* Info principal de la App: Icono más pequeño y texto apilado */
-    .app-hero {
-        gap: 15px;
-    }
-
+    /* Info principal de la App */
     .app-icon {
         width: 72px;
         height: 72px;
     }
-
+    
     .app-details h1 {
         font-size: 20px;
     }
 
-    /* Detalles de la App: Las estadísticas se apilan para ahorrar espacio */
     .info-row {
         gap: 10px;
         font-size: 11px;
@@ -256,30 +325,34 @@ body {
         font-size: 13px;
     }
 
-    /* Botones de acción: Se ponen al ancho completo en móvil */
+    /* Botones de acción */
     .actions-bar {
         display: grid;
-        grid-template-columns: 1fr auto auto; /* 1 columna para el botón, 2 para los íconos */
+        grid-template-columns: 1fr auto auto;
         gap: 10px;
     }
 
     .download-button {
         width: 100%;
         text-align: center;
-        padding: 12px 0; /* Un poco más alto para el tacto */
-    }
-
-    .share-icon, .bookmark-icon {
-        align-self: center;
-        justify-self: center;
+        padding: 12px 0;
     }
     
     /* Capturas de pantalla: más pequeñas en móvil */
     .screenshots img {
         height: 200px; 
     }
+
+    /* Información Adicional: Ajustes de tipografía */
+    .section-title {
+        font-size: 18px;
+    }
+
+    .info-block p, .info-block ul li, .safety-summary p {
+        font-size: 14px;
+    }
     
-    .hide-on-mobile-large {
-        display: none !important; /* Oculta una captura extra en móvil */
+    .info-table {
+        grid-template-columns: 1fr; /* Mantiene 1 columna, pero el espaciado es crucial */
     }
 }
