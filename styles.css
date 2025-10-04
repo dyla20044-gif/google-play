@@ -1,0 +1,285 @@
+/* ------------------------------------------- */
+/* ESTILOS GLOBALES Y DE ESCRITORIO (BASE)     */
+/* ------------------------------------------- */
+:root {
+    --color-primary: #0f9d58; /* Color verde de Play Store */
+    --color-text: #202124;
+    --color-light-gray: #f8f9fa;
+    --color-dark-gray: #5f6368;
+    --color-white: #ffffff;
+    --font-family: 'Roboto', Arial, sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding-top: 60px; /* Espacio para la barra de navegación fija */
+    background-color: var(--color-white);
+    color: var(--color-text);
+}
+
+.app-page-container {
+    max-width: 1000px; /* Ancho máximo similar al de Play Store en escritorio */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* --- BARRA DE NAVEGACIÓN SUPERIOR (FIJA) --- */
+.play-store-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    height: 60px;
+    background-color: var(--color-white);
+    border-bottom: 1px solid #dadce0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-right: 30px;
+}
+
+.play-store-nav nav a {
+    text-decoration: none;
+    color: var(--color-dark-gray);
+    padding: 0 15px;
+    height: 60px;
+    line-height: 60px;
+    display: inline-block;
+}
+
+.play-store-nav nav .active {
+    color: var(--color-primary);
+    border-bottom: 3px solid var(--color-primary);
+    font-weight: 500;
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-icons i, .user-profile {
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--color-dark-gray);
+}
+
+.user-profile {
+    background-color: #f1c40f; 
+    color: var(--color-white);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* --- SECCIÓN PRINCIPAL DE LA APP --- */
+.app-hero {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.app-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 20%; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+.app-details h1 {
+    font-size: 24px;
+    margin: 0 0 4px 0;
+    font-weight: 500;
+}
+
+.developer {
+    color: var(--color-primary);
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.info-row {
+    display: flex;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--color-dark-gray);
+    margin-top: 10px;
+}
+
+.rating, .download-count, .age-rating {
+    font-weight: 500;
+    color: var(--color-text);
+    display: block;
+    font-size: 15px;
+}
+
+.rating-info, .download-info, .age-info {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.age-info i {
+    font-size: 15px;
+    color: var(--color-text);
+    margin-bottom: 2px;
+}
+
+/* --- BOTÓN Y ACCIONES --- */
+.actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.download-button {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    padding: 10px 24px;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+}
+
+.download-button:hover {
+    background-color: #0b7f43;
+}
+
+.share-icon, .bookmark-icon {
+    font-size: 20px;
+    color: var(--color-dark-gray);
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.share-icon:hover, .bookmark-icon:hover {
+    background-color: var(--color-light-gray);
+}
+
+.compatibility-message {
+    color: var(--color-primary);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+/* --- CAPTURAS DE PANTALLA --- */
+.screenshots {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Permite desplazamiento horizontal en caso de muchas imágenes */
+    padding-bottom: 10px;
+    white-space: nowrap; 
+}
+
+.screenshots img {
+    height: 300px; 
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0; /* Asegura que no se achiquen */
+}
+
+/* ------------------------------------------- */
+/* MEDIA QUERIES (ADAPTACIÓN A MÓVIL)          */
+/* ------------------------------------------- */
+@media (max-width: 768px) {
+    
+    /* Ocultar elementos en móvil para simplificar la interfaz */
+    .hide-on-mobile {
+        display: none !important;
+    }
+    
+    /* Barra de navegación: Ocultar o reducir algunos elementos */
+    .logo {
+        margin-right: 15px;
+    }
+
+    .play-store-nav nav {
+        margin-right: auto;
+    }
+
+    .play-store-nav nav a {
+        padding: 0 10px;
+    }
+
+    /* Contenedor principal sin límites */
+    .app-page-container {
+        padding: 15px;
+    }
+
+    /* Info principal de la App: Icono más pequeño y texto apilado */
+    .app-hero {
+        gap: 15px;
+    }
+
+    .app-icon {
+        width: 72px;
+        height: 72px;
+    }
+
+    .app-details h1 {
+        font-size: 20px;
+    }
+
+    /* Detalles de la App: Las estadísticas se apilan para ahorrar espacio */
+    .info-row {
+        gap: 10px;
+        font-size: 11px;
+    }
+
+    .rating, .download-count, .age-rating {
+        font-size: 13px;
+    }
+
+    /* Botones de acción: Se ponen al ancho completo en móvil */
+    .actions-bar {
+        display: grid;
+        grid-template-columns: 1fr auto auto; /* 1 columna para el botón, 2 para los íconos */
+        gap: 10px;
+    }
+
+    .download-button {
+        width: 100%;
+        text-align: center;
+        padding: 12px 0; /* Un poco más alto para el tacto */
+    }
+
+    .share-icon, .bookmark-icon {
+        align-self: center;
+        justify-self: center;
+    }
+    
+    /* Capturas de pantalla: más pequeñas en móvil */
+    .screenshots img {
+        height: 200px; 
+    }
+    
+    .hide-on-mobile-large {
+        display: none !important; /* Oculta una captura extra en móvil */
+    }
+}
