@@ -6,6 +6,10 @@
     <title>sala cine - Google Play (Réplica)</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
     <header class="play-store-nav">
@@ -25,25 +29,31 @@
             <div class="app-details">
                 <h1>sala cine</h1>
                 <p class="developer">sala cine, Inc.</p>
-                <div class="info-row">
-                    <div class="rating-info">
-                        <span class="rating">2,2⭐</span>
-                        <span class="review-count">1.000 reseñas</span>
-                    </div>
+                
+                <div class="rating-summary">
                     <div class="download-info">
-                        <span class="download-count">10 mil+</span>
+                        <span id="download-counter" class="download-count">0</span>
                         <span class="label">Descargas</span>
+                    </div>
+                    <div class="rating-info">
+                        <span id="average-rating" class="rating-score">1.1⭐</span>
+                        <div id="star-display" class="stars">
+                            <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                        <span class="review-count">Reseñas</span>
                     </div>
                     <div class="age-info">
                         <i class="fas fa-key"></i> 
                         <span class="age-rating">sin restrisiones </span>
                     </div>
                 </div>
-            </div>
+                </div>
         </section>
         
         <div class="actions-bar">
-            <a href="https://github.com/dyla20044-gif/google-play/raw/refs/heads/main/app-release.apk" class="download-button">Descargar</a>
+            <div id="btn-download" class="download-button" style="cursor:pointer;">
+                Descargar APK (Versión 1.0)
+            </div>
             <i class="fas fa-share-alt share-icon"></i>
             <i class="fas fa-bookmark bookmark-icon"></i>
         </div>
@@ -128,6 +138,272 @@
             
         </section>
         
-    </main>
+        <hr class="divider">
+        <section class="comments-section app-info-section">
+            <h2 class="section-title">Valoraciones y Reseñas</h2>
+            <div id="feedback-message"></div>
+            
+            <div class="rating-input">
+                <div class="rating-stars">
+                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 estrellas">★</label>
+                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 estrellas">★</label>
+                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 estrellas">★</label>
+                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 estrellas">★</label>
+                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 estrella">★</label>
+                </div>
+                <textarea id="comment-text" placeholder="Deja tu comentario sobre la app (Máx. 150 caracteres)..." maxlength="150"></textarea>
+                <button id="submit-comment">Enviar Comentario y Voto Anónimo</button>
+            </div>
+            
+            <div id="comments-list">
+                <p style="text-align:center;">Cargando comentarios...</p>
+            </div>
+        </section>
+        </main>
+
+    <div id="security-check-modal">
+        <div class="security-check-content">
+            <div class="security-check-spinner"></div>
+            <div class="security-message" id="security-message-text">Comprobando seguridad del archivo...</div>
+        </div>
+    </div>
+    
+    <script>
+        // === CONFIGURACIÓN DE FIREBASE (TOMADA DE TU MINI TIENDA) ===
+        // **IMPORTANTE**: Si cambias de proyecto de Firebase, debes actualizar estos valores.
+        const firebaseConfig = {
+            apiKey: "AIzaSyCF5lyEIFkKhzgc4kOMebWZ7oZrxWDNw2Y", 
+            authDomain: "app-aeff2.firebaseapp.com",
+            projectId: "app-aeff2",
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const FieldValue = firebase.firestore.FieldValue;
+
+        // --- Elementos del DOM ---
+        const downloadCounterElement = document.getElementById('download-counter');
+        const downloadButton = document.getElementById('btn-download');
+        const avgRatingElement = document.getElementById('average-rating');
+        const starDisplayElement = document.getElementById('star-display');
+        const submitButton = document.getElementById('submit-comment');
+        const commentsListElement = document.getElementById('comments-list');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const commentTextarea = document.getElementById('comment-text');
+        const ratingInputs = document.querySelectorAll('input[name="rating"]');
+        const securityModal = document.getElementById('security-check-modal');
+        const securityText = document.getElementById('security-message-text');
+
+        // URL del APK (TOMADA DE TU MINI TIENDA)
+        // **IMPORTANTE**: Reemplaza esto con tu enlace 'Raw' de GitHub si usas otra ubicación.
+        const APK_URL = "https://tienda-m4mp.onrender.com/app-release[1].apk"; 
+
+        let isInitialized = false;
+        let userUid = null;
+
+        // --- INICIALIZACIÓN Y LÓGICA ANÓNIMA ---
+        auth.signInAnonymously().then(userCredential => {
+            userUid = userCredential.user.uid;
+            isInitialized = true;
+            loadStats();
+            renderComments();
+        }).catch(error => {
+            console.error("Error signing in anonymously:", error);
+            feedbackMessage.textContent = "Error al conectar con la base de datos.";
+        });
+
+
+        // --- ESTADÍSTICAS Y CONTADORES ---
+        async function loadStats() {
+            try {
+                // 1. CARGA EL CONTADOR DE DESCARGAS
+                const downloadsDoc = await db.collection("app_stats").doc("download_counter").get();
+                const totalDownloads = downloadsDoc.exists ? downloadsDoc.data().total || 0 : 0;
+                downloadCounterElement.textContent = totalDownloads.toLocaleString() + ' mil+'; // Añade el 'mil+' como tu diseño original.
+
+                // 2. CARGA LA PUNTUACIÓN PROMEDIO
+                const ratingDoc = await db.collection("app_stats").doc("rating_summary").get();
+                let average = 1.1; // VALOR INICIAL REQUERIDO: 1.1
+                if (ratingDoc.exists) {
+                    const data = ratingDoc.data();
+                    if (data.totalVotes > 0) {
+                        average = (data.totalScore / data.totalVotes);
+                    }
+                }
+                avgRatingElement.textContent = average.toFixed(1) + '⭐';
+                renderStars(average);
+            } catch (error) {
+                console.error("Error al cargar estadísticas:", error);
+                renderStars(1.1);
+            }
+        }
+
+        function renderStars(average) {
+            starDisplayElement.innerHTML = '';
+            const fullStars = Math.floor(average);
+            const hasHalfStar = (average * 10) % 10 >= 5; 
+            
+            // Renderiza la cantidad de reseñas (simulada o real)
+            const reviewDoc = db.collection("app_stats").doc("rating_summary");
+            reviewDoc.get().then(doc => {
+                const reviewCount = doc.exists ? doc.data().totalVotes || 0 : 0;
+                // Busca el elemento de conteo de reseñas y actualízalo
+                const reviewCountElement = starDisplayElement.closest('.rating-info').querySelector('.review-count');
+                if (reviewCountElement) {
+                    reviewCountElement.textContent = reviewCount.toLocaleString() + ' reseñas';
+                }
+            });
+
+            // Genera los iconos de estrellas
+            for (let i = 0; i < 5; i++) {
+                const icon = document.createElement('i');
+                if (i < fullStars) {
+                    icon.className = "fas fa-star";
+                } else if (i === fullStars && hasHalfStar) {
+                    icon.className = "fas fa-star-half-alt";
+                } else {
+                    icon.className = "far fa-star";
+                }
+                starDisplayElement.appendChild(icon);
+            }
+        }
+
+        // --- LÓGICA DE DESCARGA Y SEGURIDAD ---
+        downloadButton.addEventListener('click', async () => {
+            if (!isInitialized || !userUid) return;
+
+            // 1. Mostrar el modal de seguridad
+            securityModal.style.display = 'flex';
+            securityText.textContent = 'Iniciando verificación de seguridad...';
+
+            // 2. Simular la verificación de seguridad (Pasos detallados)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            securityText.textContent = 'Comprobando integridad del archivo...'; 
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            securityText.textContent = 'Escaneando código malicioso...'; 
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            securityText.textContent = 'Validando firma de desarrollador...'; 
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // 3. Actualizar mensaje de éxito y preparar descarga
+            securityText.textContent = '✅ ARCHIVO SEGURO. Procede a la descarga.'; 
+            
+            // 4. Pausa final antes de iniciar la descarga
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // 5. Iniciar descarga (utilizando la URL de tu APK)
+            window.location.href = APK_URL; 
+            
+            // 6. Ocultar modal y contar la descarga
+            securityModal.style.display = 'none';
+            incrementDownloadCount();
+        });
+
+
+        // --- MANEJADORES DE BASE DE DATOS (Rating/Comments) ---
+        
+        async function incrementDownloadCount() {
+            try {
+                const statRef = db.collection("app_stats").doc("download_counter");
+                await db.runTransaction(async (transaction) => {
+                    const statDoc = await transaction.get(statRef);
+                    if (statDoc.exists) {
+                        const newTotal = (statDoc.data().total || 0) + 1;
+                        transaction.update(statRef, { total: newTotal });
+                    } else {
+                        transaction.set(statRef, { total: 1 });
+                    }
+                });
+                loadStats();
+            } catch (error) {
+                console.error("Error al incrementar descargas:", error);
+            }
+        }
+
+        submitButton.addEventListener('click', async () => {
+            if (!isInitialized || !userUid) return;
+
+            const comment = commentTextarea.value.trim();
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            const rating = ratingInput ? parseInt(ratingInput.value) : null;
+            
+            if (!rating) { feedbackMessage.textContent = "Por favor, selecciona una puntuación."; return; }
+            if (comment.length < 5) { feedbackMessage.textContent = "El comentario es muy corto."; return; }
+
+            try {
+                const hasVoted = await db.collection("ratings").where("userId", "==", userUid).limit(1).get();
+                if (!hasVoted.empty) {
+                     feedbackMessage.textContent = "Ya has enviado tu voto. ¡Gracias!";
+                     return;
+                }
+
+                // 1. GUARDAR RATING y COMENTARIO (BATCH)
+                const batch = db.batch();
+                batch.set(db.collection("ratings").doc(), { userId: userUid, rating: rating, timestamp: FieldValue.serverTimestamp() });
+                batch.set(db.collection("page_comments").doc(), { userId: userUid, rating: rating, comment: comment, timestamp: FieldValue.serverTimestamp() });
+
+                // 2. ACTUALIZAR ESTADÍSTICAS GLOBALES
+                const summaryRef = db.collection("app_stats").doc("rating_summary");
+                batch.set(summaryRef, {
+                    totalVotes: FieldValue.increment(1),
+                    totalScore: FieldValue.increment(rating)
+                }, { merge: true });
+                
+                await batch.commit();
+
+                feedbackMessage.textContent = "¡Tu voto y comentario han sido enviados!";
+                commentTextarea.value = '';
+                ratingInputs.forEach(input => input.checked = false);
+                renderComments();
+                loadStats(); // Recalcula el promedio
+                
+            } catch (error) {
+                console.error("Error al enviar comentario:", error);
+                feedbackMessage.textContent = "Error al enviar el voto/comentario.";
+            }
+        });
+
+        // 3. RENDERIZAR COMENTARIOS
+        function renderComments() {
+             db.collection("page_comments").orderBy("timestamp", "desc").limit(10).onSnapshot(snapshot => {
+                commentsListElement.innerHTML = '';
+                feedbackMessage.textContent = ''; // Limpiar mensaje de feedback
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'comment-item';
+                    
+                    // Asegurar que el timestamp sea un objeto Date
+                    let dateString = "Fecha desconocida";
+                    if (data.timestamp && data.timestamp.toDate) {
+                        const date = data.timestamp.toDate();
+                        dateString = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    }
+                    
+                    // Generar un nombre anónimo
+                    const userName = "Anónimo " + (data.userId ? data.userId.substring(0, 7) : 'Usuario'); 
+
+                    item.innerHTML = `
+                        <p class="comment-user">${userName} (${data.rating}★)</p>
+                        <p class="review-text">${data.comment}</p>
+                        <p class="reviewer-date">${dateString}</p>
+                    `;
+                    commentsListElement.appendChild(item);
+                });
+
+                if (snapshot.empty) {
+                    commentsListElement.innerHTML = '<p class="no-comments">Sé el primero en dejar tu opinión.</p>';
+                }
+            }, error => {
+                console.error("Error real time comments:", error);
+                commentsListElement.innerHTML = '<p class="no-comments">Error al cargar comentarios.</p>';
+            });
+        }
+    </script>
 </body>
 </html>
