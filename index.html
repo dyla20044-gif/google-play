@@ -159,12 +159,6 @@
         </section>
         </main>
 
-    <div id="security-check-modal">
-        <div class="security-check-content">
-            <div class="security-check-spinner"></div>
-            <div class="security-message" id="security-message-text">Comprobando seguridad del archivo...</div>
-        </div>
-    </div>
     
     <script>
         // === CONFIGURACIÓN DE FIREBASE (TOMADA DE TU MINI TIENDA) ===
@@ -193,8 +187,9 @@
         const feedbackMessage = document.getElementById('feedback-message');
         const commentTextarea = document.getElementById('comment-text');
         const ratingInputs = document.querySelectorAll('input[name="rating"]');
-        const securityModal = document.getElementById('security-check-modal');
-        const securityText = document.getElementById('security-message-text');
+        // Se eliminan las referencias al modal:
+        // const securityModal = document.getElementById('security-check-modal');
+        // const securityText = document.getElementById('security-message-text');
 
         // URL del APK (TOMADA DE TU MINI TIENDA)
         // **IMPORTANTE**: Reemplaza esto con tu enlace 'Raw' de GitHub.
@@ -273,37 +268,14 @@
             }
         }
 
-        // --- LÓGICA DE DESCARGA Y SEGURIDAD ---
+        // --- LÓGICA DE DESCARGA DIRECTA (SIN CHEQUEO) ---
         downloadButton.addEventListener('click', async () => {
             if (!isInitialized || !userUid) return;
 
-            // 1. Mostrar el modal de seguridad
-            securityModal.style.display = 'flex';
-            securityText.textContent = 'Iniciando verificación de seguridad...';
-
-            // 2. Simular la verificación de seguridad (Pasos detallados)
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            securityText.textContent = 'Comprobando integridad del archivo...'; 
-            
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            securityText.textContent = 'Escaneando código malicioso...'; 
-            
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            securityText.textContent = 'Validando firma de desarrollador...'; 
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // 3. Actualizar mensaje de éxito y preparar descarga
-            securityText.textContent = '✅ ARCHIVO SEGURO. Procede a la descarga.'; 
-            
-            // 4. Pausa final antes de iniciar la descarga
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // 5. Iniciar descarga (utilizando la URL de tu APK)
+            // 1. Iniciar descarga directamente (utilizando la URL de tu APK)
             window.location.href = APK_URL; 
             
-            // 6. Ocultar modal y contar la descarga
-            securityModal.style.display = 'none';
+            // 2. Contar la descarga
             incrementDownloadCount();
         });
 
