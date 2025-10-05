@@ -10,8 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    
-    <script src="firebase-config.js"></script>
 </head>
 <body>
     <header class="play-store-nav">
@@ -35,9 +33,7 @@
                 <div class="info-row">
                     <div class="rating-info">
                         <span id="average-rating" class="rating">1,1⭐</span>
-                        <div id="star-display" class="stars">
-                            <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
-                        </div>
+                        <div id="star-display" class="stars"></div>
                         <span id="review-count" class="review-count">0 reseñas</span>
                     </div>
                     <div class="download-info">
@@ -49,8 +45,7 @@
                         <span class="age-rating">sin restrisiones </span>
                     </div>
                 </div>
-                
-            </div>
+                </div>
         </section>
         
         <div class="actions-bar">
@@ -172,17 +167,25 @@
     </div>
     
     <script>
-        // La configuración de Firebase ahora se carga desde firebase-config.js
+        // === CONFIGURACIÓN DE FIREBASE (TOMADA DE TU MINI TIENDA) ===
+        // **IMPORTANTE**: Si cambias de proyecto de Firebase, debes actualizar estos valores.
+        const firebaseConfig = {
+            apiKey: "AIzaSyCF5lyEIFkKhzgc4kOMebWZ7oZrxWDNw2Y", 
+            authDomain: "app-aeff2.firebaseapp.com",
+            projectId: "app-aeff2",
+        };
 
+        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
         const FieldValue = firebase.firestore.FieldValue;
 
         // --- Elementos del DOM ---
+        // Estos IDs coinciden con los nuevos elementos en la estructura tipo Play Store
         const downloadCounterElement = document.getElementById('download-counter');
         const avgRatingElement = document.getElementById('average-rating');
         const starDisplayElement = document.getElementById('star-display');
-        const reviewCountElement = document.getElementById('review-count');
+        const reviewCountElement = document.getElementById('review-count'); // Nuevo ID para el conteo de reseñas
         
         const downloadButton = document.getElementById('btn-download');
         const submitButton = document.getElementById('submit-comment');
@@ -193,29 +196,23 @@
         const securityModal = document.getElementById('security-check-modal');
         const securityText = document.getElementById('security-message-text');
 
-        // URL del APK (Asegúrate de que este es tu enlace "Raw" de GitHub)
+        // URL del APK (TOMADA DE TU MINI TIENDA)
+        // **IMPORTANTE**: Reemplaza esto con tu enlace 'Raw' de GitHub.
         const APK_URL = "https://raw.githubusercontent.com/TuUsuario/TuRepositorio/main/app-release.apk"; 
 
         let isInitialized = false;
         let userUid = null;
 
         // --- INICIALIZACIÓN Y LÓGICA ANÓNIMA ---
-        // Inicializar la app AQUÍ, usando la variable global 'firebaseConfig'
-        try {
-            const app = firebase.initializeApp(firebaseConfig);
-            auth.signInAnonymously().then(userCredential => {
-                userUid = userCredential.user.uid;
-                isInitialized = true;
-                loadStats();
-                renderComments();
-            }).catch(error => {
-                console.error("Error signing in anonymously:", error);
-                feedbackMessage.textContent = "Error al conectar con la base de datos.";
-            });
-        } catch (error) {
-             console.error("Error initializing Firebase:", error);
-             feedbackMessage.textContent = "Error de configuración: La clave API podría ser incorrecta o faltar.";
-        }
+        auth.signInAnonymously().then(userCredential => {
+            userUid = userCredential.user.uid;
+            isInitialized = true;
+            loadStats();
+            renderComments();
+        }).catch(error => {
+            console.error("Error signing in anonymously:", error);
+            feedbackMessage.textContent = "Error al conectar con la base de datos.";
+        });
 
 
         // --- ESTADÍSTICAS Y CONTADORES ---
@@ -225,11 +222,12 @@
                 const downloadsDoc = await db.collection("app_stats").doc("download_counter").get();
                 const totalDownloads = downloadsDoc.exists ? downloadsDoc.data().total || 0 : 0;
                 
+                // Mostrar el conteo de descargas directamente
                 downloadCounterElement.textContent = totalDownloads.toLocaleString(); 
 
                 // 2. CARGA LA PUNTUACIÓN PROMEDIO
                 const ratingDoc = await db.collection("app_stats").doc("rating_summary").get();
-                let average = 1.1;
+                let average = 1.1; // VALOR INICIAL REQUERIDO: 1.1
                 let totalVotes = 0;
                 
                 if (ratingDoc.exists) {
@@ -247,7 +245,7 @@
                 renderStars(average);
             } catch (error) {
                 console.error("Error al cargar estadísticas:", error);
-                // Valores iniciales en caso de error
+                // Asegurar que los valores iniciales se muestren en caso de error de lectura
                 avgRatingElement.textContent = '1,1⭐';
                 reviewCountElement.textContent = '0 reseñas';
                 downloadCounterElement.textContent = '0';
@@ -258,8 +256,10 @@
         function renderStars(average) {
             starDisplayElement.innerHTML = '';
             const fullStars = Math.floor(average);
+            // Redondeo simple para media estrella (si el decimal es 0.5 o más)
             const hasHalfStar = (average - fullStars) >= 0.5; 
             
+            // Genera los iconos de estrellas (total de 5)
             for (let i = 0; i < 5; i++) {
                 const icon = document.createElement('i');
                 if (i < fullStars) {
