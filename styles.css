@@ -104,42 +104,39 @@ body {
     margin-bottom: 10px;
 }
 
-/* ------------------------------------------- */
-/* --- NUEVOS ESTILOS PARA FIREBASE (ADAPTADOS) --- */
-/* ------------------------------------------- */
-
-.rating-summary {
+/* Estructura para la fila de estadísticas (conservada de tu diseño) */
+.info-row {
     display: flex;
     gap: 20px;
     font-size: 12px;
     color: var(--color-dark-gray);
     margin-top: 10px;
 }
-/* Estructura para centrar el texto de cada item de estadísticas */
+
+/* Contenedores de cada estadística (conservados de tu diseño) */
 .rating-info, .download-info, .age-info {
     display: flex;
     flex-direction: column;
     text-align: center;
 }
 
-/* Estilos de los números de las estadísticas */
-.rating-score, .download-count {
+/* Estilos de los valores dinámicos y estáticos */
+.rating, .download-count, .age-rating {
     font-weight: 500;
     color: var(--color-text);
     display: block;
     font-size: 15px;
-    margin-bottom: 2px;
 }
 
+/* Contenedor para las estrellas */
 .rating-info .stars {
+    display: flex;
+    gap: 1px;
     color: #FFC107; /* Amarillo para las estrellas */
     font-size: 15px;
-    margin-bottom: 2px;
-}
-
-.review-count {
-    font-size: 12px;
-    color: var(--color-dark-gray);
+    justify-content: center;
+    align-items: center;
+    height: 15px; /* Para que no se mueva el layout al inyectar */
 }
 
 .age-info i {
@@ -148,7 +145,7 @@ body {
     margin-bottom: 2px;
 }
 
-/* --- BOTÓN Y ACCIONES --- */
+/* --- BOTÓN Y ACCIONES (MODIFICADO PARA DIV) --- */
 .actions-bar {
     display: flex;
     align-items: center;
@@ -328,9 +325,10 @@ body {
 }
 
 #feedback-message {
-    color: #FFC107; 
+    color: var(--color-primary); 
     font-size: 14px;
     margin-bottom: 10px;
+    font-weight: 500;
 }
 
 /* Input y botón para dejar reseña */
@@ -391,24 +389,21 @@ body {
     padding-right: 10px; 
     margin-top: 20px;
 }
-#comments-list .no-comments {
-    color: var(--color-dark-gray);
-    font-style: italic;
-}
 .comment-item {
     background-color: var(--color-light-gray);
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 15px;
     font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .comment-user {
     font-weight: 500;
-    color: var(--color-text);
+    color: var(--color-primary); /* Título del comentario en verde */
     margin: 0 0 5px 0;
 }
 .review-text {
-    color: var(--color-dark-gray);
+    color: var(--color-text);
     margin: 0 0 5px 0 !important;
 }
 .reviewer-date {
@@ -416,6 +411,12 @@ body {
     color: var(--color-dark-gray);
     margin: 0;
 }
+#comments-list .no-comments {
+    color: var(--color-dark-gray);
+    font-style: italic;
+    text-align: center;
+}
+
 
 /* --- MODAL DE SEGURIDAD (ADAPTADO AL DISEÑO BLANCO) --- */
 #security-check-modal {
@@ -478,12 +479,12 @@ body {
         font-size: 20px;
     }
 
-    .rating-summary {
+    .info-row {
         gap: 10px;
         font-size: 11px;
     }
-    
-    .rating-score, .download-count {
+
+    .rating, .download-count, .age-rating {
         font-size: 13px;
     }
     .rating-info .stars {
