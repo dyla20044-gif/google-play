@@ -104,25 +104,42 @@ body {
     margin-bottom: 10px;
 }
 
-.info-row {
+/* ------------------------------------------- */
+/* --- NUEVOS ESTILOS PARA FIREBASE (ADAPTADOS) --- */
+/* ------------------------------------------- */
+
+.rating-summary {
     display: flex;
     gap: 20px;
     font-size: 12px;
     color: var(--color-dark-gray);
     margin-top: 10px;
 }
-
-.rating, .download-count, .age-rating {
-    font-weight: 500;
-    color: var(--color-text);
-    display: block;
-    font-size: 15px;
-}
-
+/* Estructura para centrar el texto de cada item de estadísticas */
 .rating-info, .download-info, .age-info {
     display: flex;
     flex-direction: column;
     text-align: center;
+}
+
+/* Estilos de los números de las estadísticas */
+.rating-score, .download-count {
+    font-weight: 500;
+    color: var(--color-text);
+    display: block;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.rating-info .stars {
+    color: #FFC107; /* Amarillo para las estrellas */
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.review-count {
+    font-size: 12px;
+    color: var(--color-dark-gray);
 }
 
 .age-info i {
@@ -149,6 +166,10 @@ body {
     font-size: 15px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     transition: background-color 0.2s;
+    /* Necesario para que el DIV se comporte como botón */
+    display: inline-block; 
+    text-align: center;
+    cursor: pointer;
 }
 
 .share-icon, .bookmark-icon {
@@ -189,7 +210,7 @@ body {
 }
 
 /* ------------------------------------------- */
-/* --- NUEVAS SECCIONES DE INFORMACIÓN ABAJO --- */
+/* --- SECCIONES DE INFORMACIÓN ORIGINALES --- */
 /* ------------------------------------------- */
 .app-info-section {
     margin-top: 40px;
@@ -298,6 +319,147 @@ body {
 }
 
 /* ------------------------------------------- */
+/* --- COMENTARIOS Y RESEÑAS (ADAPTADOS) --- */
+/* ------------------------------------------- */
+
+.comments-section {
+    text-align: left;
+    margin-top: 20px;
+}
+
+#feedback-message {
+    color: #FFC107; 
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Input y botón para dejar reseña */
+.rating-input {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse; 
+    justify-content: left;
+}
+.rating-stars label {
+    font-size: 24px;
+    color: var(--border-color);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.rating-stars input[type="radio"] {
+    display: none;
+}
+.rating-stars label:hover,
+.rating-stars label:hover ~ label,
+.rating-stars input[type="radio"]:checked ~ label {
+    color: #FFC107; /* Color de estrella activa */
+}
+#comment-text {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--color-white);
+    color: var(--color-text);
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: var(--font-family);
+    min-height: 80px;
+}
+#submit-comment {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 15px;
+    width: 100%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Lista de comentarios */
+#comments-list {
+    max-height: 300px; 
+    overflow-y: auto; 
+    padding-right: 10px; 
+    margin-top: 20px;
+}
+#comments-list .no-comments {
+    color: var(--color-dark-gray);
+    font-style: italic;
+}
+.comment-item {
+    background-color: var(--color-light-gray);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+.comment-user {
+    font-weight: 500;
+    color: var(--color-text);
+    margin: 0 0 5px 0;
+}
+.review-text {
+    color: var(--color-dark-gray);
+    margin: 0 0 5px 0 !important;
+}
+.reviewer-date {
+    font-size: 12px;
+    color: var(--color-dark-gray);
+    margin: 0;
+}
+
+/* --- MODAL DE SEGURIDAD (ADAPTADO AL DISEÑO BLANCO) --- */
+#security-check-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.security-check-content {
+    background-color: var(--color-white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    max-width: 350px;
+    text-align: center;
+}
+.security-check-spinner {
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--color-primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.security-message {
+    font-size: 16px;
+    color: var(--color-text);
+}
+
+
+/* ------------------------------------------- */
 /* MEDIA QUERIES (ADAPTACIÓN A MÓVIL)          */
 /* ------------------------------------------- */
 @media (max-width: 768px) {
@@ -316,12 +478,15 @@ body {
         font-size: 20px;
     }
 
-    .info-row {
+    .rating-summary {
         gap: 10px;
         font-size: 11px;
     }
-
-    .rating, .download-count, .age-rating {
+    
+    .rating-score, .download-count {
+        font-size: 13px;
+    }
+    .rating-info .stars {
         font-size: 13px;
     }
 
@@ -353,6 +518,6 @@ body {
     }
     
     .info-table {
-        grid-template-columns: 1fr; /* Mantiene 1 columna, pero el espaciado es crucial */
+        grid-template-columns: 1fr;
     }
 }
