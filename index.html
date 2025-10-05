@@ -30,29 +30,30 @@
                 <h1>sala cine</h1>
                 <p class="developer">sala cine, Inc.</p>
                 
-                <div class="rating-summary">
-                    <div class="download-info">
-                        <span id="download-counter" class="download-count">0</span>
-                        <span class="label">Descargas</span>
-                    </div>
+                <div class="info-row">
                     <div class="rating-info">
-                        <span id="average-rating" class="rating-score">1.1⭐</span>
+                        <span id="average-rating" class="rating">1,1⭐</span>
                         <div id="star-display" class="stars">
                             <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                         </div>
-                        <span class="review-count">Reseñas</span>
+                        <span id="review-count" class="review-count">0 reseñas</span>
+                    </div>
+                    <div class="download-info">
+                        <span id="download-counter" class="download-count">0</span>
+                        <span class="label">Descargas</span>
                     </div>
                     <div class="age-info">
                         <i class="fas fa-key"></i> 
                         <span class="age-rating">sin restrisiones </span>
                     </div>
                 </div>
-                </div>
+                
+            </div>
         </section>
         
         <div class="actions-bar">
             <div id="btn-download" class="download-button" style="cursor:pointer;">
-                Descargar APK (Versión 1.0)
+                Descargar
             </div>
             <i class="fas fa-share-alt share-icon"></i>
             <i class="fas fa-bookmark bookmark-icon"></i>
@@ -156,7 +157,7 @@
             </div>
             
             <div id="comments-list">
-                <p style="text-align:center;">Cargando comentarios...</p>
+                <p class="no-comments">Cargando comentarios...</p>
             </div>
         </section>
         </main>
@@ -169,10 +170,10 @@
     </div>
     
     <script>
-        // === CONFIGURACIÓN DE FIREBASE (TOMADA DE TU MINI TIENDA) ===
-        // **IMPORTANTE**: Si cambias de proyecto de Firebase, debes actualizar estos valores.
+        // === CONFIGURACIÓN DE FIREBASE ===
+        // ¡ADVERTENCIA DE SEGURIDAD! Reemplaza este PLACEHOLDER por la NUEVA clave API que has rotado.
         const firebaseConfig = {
-            apiKey: "AIzaSyCF5lyEIFkKhzgc4kOMebWZ7oZrxWDNw2Y", 
+            apiKey: "TU_NUEVA_CLAVE_API_ROTADA", 
             authDomain: "app-aeff2.firebaseapp.com",
             projectId: "app-aeff2",
         };
@@ -184,9 +185,11 @@
 
         // --- Elementos del DOM ---
         const downloadCounterElement = document.getElementById('download-counter');
-        const downloadButton = document.getElementById('btn-download');
         const avgRatingElement = document.getElementById('average-rating');
         const starDisplayElement = document.getElementById('star-display');
+        const reviewCountElement = document.getElementById('review-count');
+        
+        const downloadButton = document.getElementById('btn-download');
         const submitButton = document.getElementById('submit-comment');
         const commentsListElement = document.getElementById('comments-list');
         const feedbackMessage = document.getElementById('feedback-message');
@@ -195,9 +198,8 @@
         const securityModal = document.getElementById('security-check-modal');
         const securityText = document.getElementById('security-message-text');
 
-        // URL del APK (TOMADA DE TU MINI TIENDA)
-        // **IMPORTANTE**: Reemplaza esto con tu enlace 'Raw' de GitHub si usas otra ubicación.
-        const APK_URL = "https://tienda-m4mp.onrender.com/app-release[1].apk"; 
+        // URL del APK (Asegúrate de que este es tu enlace "Raw" de GitHub)
+        const APK_URL = "https://raw.githubusercontent.com/TuUsuario/TuRepositorio/main/app-release.apk"; 
 
         let isInitialized = false;
         let userUid = null;
@@ -220,21 +222,34 @@
                 // 1. CARGA EL CONTADOR DE DESCARGAS
                 const downloadsDoc = await db.collection("app_stats").doc("download_counter").get();
                 const totalDownloads = downloadsDoc.exists ? downloadsDoc.data().total || 0 : 0;
-                downloadCounterElement.textContent = totalDownloads.toLocaleString() + ' mil+'; // Añade el 'mil+' como tu diseño original.
+                
+                // Formateo según el diseño de Play Store
+                downloadCounterElement.textContent = totalDownloads.toLocaleString(); 
 
                 // 2. CARGA LA PUNTUACIÓN PROMEDIO
                 const ratingDoc = await db.collection("app_stats").doc("rating_summary").get();
-                let average = 1.1; // VALOR INICIAL REQUERIDO: 1.1
+                let average = 1.1; // Inicio en 1.1 como solicitaste
+                let totalVotes = 0;
+                
                 if (ratingDoc.exists) {
                     const data = ratingDoc.data();
-                    if (data.totalVotes > 0) {
-                        average = (data.totalScore / data.totalVotes);
+                    totalVotes = data.totalVotes || 0;
+                    if (totalVotes > 0) {
+                        average = (data.totalScore / totalVotes);
                     }
                 }
-                avgRatingElement.textContent = average.toFixed(1) + '⭐';
+                
+                // Actualiza el texto del promedio y el conteo de reseñas
+                avgRatingElement.textContent = average.toFixed(1).replace('.', ',') + '⭐';
+                reviewCountElement.textContent = totalVotes.toLocaleString().replace('.', ',') + ' reseñas';
+                
                 renderStars(average);
             } catch (error) {
                 console.error("Error al cargar estadísticas:", error);
+                // Valores iniciales en caso de error
+                avgRatingElement.textContent = '1,1⭐';
+                reviewCountElement.textContent = '0 reseñas';
+                downloadCounterElement.textContent = '0';
                 renderStars(1.1);
             }
         }
@@ -242,20 +257,8 @@
         function renderStars(average) {
             starDisplayElement.innerHTML = '';
             const fullStars = Math.floor(average);
-            const hasHalfStar = (average * 10) % 10 >= 5; 
+            const hasHalfStar = (average - fullStars) >= 0.5; 
             
-            // Renderiza la cantidad de reseñas (simulada o real)
-            const reviewDoc = db.collection("app_stats").doc("rating_summary");
-            reviewDoc.get().then(doc => {
-                const reviewCount = doc.exists ? doc.data().totalVotes || 0 : 0;
-                // Busca el elemento de conteo de reseñas y actualízalo
-                const reviewCountElement = starDisplayElement.closest('.rating-info').querySelector('.review-count');
-                if (reviewCountElement) {
-                    reviewCountElement.textContent = reviewCount.toLocaleString() + ' reseñas';
-                }
-            });
-
-            // Genera los iconos de estrellas
             for (let i = 0; i < 5; i++) {
                 const icon = document.createElement('i');
                 if (i < fullStars) {
@@ -378,14 +381,12 @@
                     const item = document.createElement('div');
                     item.className = 'comment-item';
                     
-                    // Asegurar que el timestamp sea un objeto Date
                     let dateString = "Fecha desconocida";
                     if (data.timestamp && data.timestamp.toDate) {
                         const date = data.timestamp.toDate();
                         dateString = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
                     }
                     
-                    // Generar un nombre anónimo
                     const userName = "Anónimo " + (data.userId ? data.userId.substring(0, 7) : 'Usuario'); 
 
                     item.innerHTML = `
