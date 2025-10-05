@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script src="firebase-config.js"></script>
 </head>
 <body>
     <header class="play-store-nav">
@@ -170,15 +172,8 @@
     </div>
     
     <script>
-        // === CONFIGURACIÓN DE FIREBASE ===
-        // ¡ADVERTENCIA DE SEGURIDAD! Reemplaza este PLACEHOLDER por la NUEVA clave API que has rotado.
-        const firebaseConfig = {
-            apiKey: "TU_NUEVA_CLAVE_API_ROTADA", 
-            authDomain: "app-aeff2.firebaseapp.com",
-            projectId: "app-aeff2",
-        };
+        // La configuración de Firebase ahora se carga desde firebase-config.js
 
-        const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
         const FieldValue = firebase.firestore.FieldValue;
@@ -205,15 +200,22 @@
         let userUid = null;
 
         // --- INICIALIZACIÓN Y LÓGICA ANÓNIMA ---
-        auth.signInAnonymously().then(userCredential => {
-            userUid = userCredential.user.uid;
-            isInitialized = true;
-            loadStats();
-            renderComments();
-        }).catch(error => {
-            console.error("Error signing in anonymously:", error);
-            feedbackMessage.textContent = "Error al conectar con la base de datos.";
-        });
+        // Inicializar la app AQUÍ, usando la variable global 'firebaseConfig'
+        try {
+            const app = firebase.initializeApp(firebaseConfig);
+            auth.signInAnonymously().then(userCredential => {
+                userUid = userCredential.user.uid;
+                isInitialized = true;
+                loadStats();
+                renderComments();
+            }).catch(error => {
+                console.error("Error signing in anonymously:", error);
+                feedbackMessage.textContent = "Error al conectar con la base de datos.";
+            });
+        } catch (error) {
+             console.error("Error initializing Firebase:", error);
+             feedbackMessage.textContent = "Error de configuración: La clave API podría ser incorrecta o faltar.";
+        }
 
 
         // --- ESTADÍSTICAS Y CONTADORES ---
@@ -223,12 +225,11 @@
                 const downloadsDoc = await db.collection("app_stats").doc("download_counter").get();
                 const totalDownloads = downloadsDoc.exists ? downloadsDoc.data().total || 0 : 0;
                 
-                // Formateo según el diseño de Play Store
                 downloadCounterElement.textContent = totalDownloads.toLocaleString(); 
 
                 // 2. CARGA LA PUNTUACIÓN PROMEDIO
                 const ratingDoc = await db.collection("app_stats").doc("rating_summary").get();
-                let average = 1.1; // Inicio en 1.1 como solicitaste
+                let average = 1.1;
                 let totalVotes = 0;
                 
                 if (ratingDoc.exists) {
